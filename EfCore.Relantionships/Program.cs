@@ -2,6 +2,7 @@ using EfCore.Relantionships;
 using EfCore.Relantionships.Context;
 using EfCore.Relantionships.Dtos;
 using EfCore.Relantionships.Models;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -12,9 +13,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ApplicationDbContext>(cfg =>
 {
     cfg.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
+    cfg.LogTo(Console.WriteLine, LogLevel.Information);//consoleda herşeyi göstermek için
 });
 builder.Services.AddExceptionHandler<ExceptionHandler>().AddProblemDetails();
 
+//controller yapımızı ekleyeceğimizi söyledik controllerda o data kullancaz
+builder.Services.AddControllers().AddOData(options =>
+{
+    options.EnableQueryFeatures();
+});
 
 var app = builder.Build();
 
@@ -51,7 +58,7 @@ app.MapPost("/user-create", (ApplicationDbContext context,UserCreateDto request)
 app.MapGet("/userGetAll", (ApplicationDbContext context) =>
 {
     #region yöntem 1 include
-    //var usersInclude = context.Users.Include(x=>x.UserInformation).ToList();
+    var usersInclude = context.Users.Include(x => x.UserInformation).ToList();
     //navigation property verdik ve lazy loading yaptık
     #endregion
 
@@ -75,27 +82,29 @@ app.MapGet("/userGetAll", (ApplicationDbContext context) =>
     #endregion
 
     #region yöntem 3 from kullanımı
-    var usersFrom =
-    (
-    from u in context.Users
-    join i in context.UserInformations
-    on u!.UserInformation!.Id
-    equals i.Id
-    select new
-    {
-        Id = u.Id,
-        fullName = u.FullName,
-        IdentityNumber = i.IdentityNumber,
-        fullAddress = i.FullAddress,
-        Note = "This Created By from"
-    }).ToList();
+    //var usersFrom =
+    //(
+    //from u in context.Users
+    //join i in context.UserInformations
+    //on u!.UserInformation!.Id
+    //equals i.Id
+    //select new
+    //{
+    //    Id = u.Id,
+    //    fullName = u.FullName,
+    //    IdentityNumber = i.IdentityNumber,
+    //    fullAddress = i.FullAddress,
+    //    Note = "This Created By from"
+    //}).ToList();
 
     #endregion
 
 
-    //return usersInclude;
+    return usersInclude;
     //return usersJoin;
-    return usersFrom;
+    //return usersFrom;
 });
+
+app.MapControllers();
 
 app.Run();
