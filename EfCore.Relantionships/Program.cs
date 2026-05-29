@@ -74,14 +74,28 @@ app.MapGet("/userGetAll", (ApplicationDbContext context) =>
     //    }).ToList();
     #endregion
 
-    #region from kullanımı
-
+    #region yöntem 3 from kullanımı
+    var usersFrom =
+    (
+    from u in context.Users
+    join i in context.UserInformations
+    on u!.UserInformation!.Id
+    equals i.Id
+    select new
+    {
+        Id = u.Id,
+        fullName = u.FullName,
+        IdentityNumber = i.IdentityNumber,
+        fullAddress = i.FullAddress,
+        Note = "This Created By from"
+    }).ToList();
 
     #endregion
 
 
     //return usersInclude;
     //return usersJoin;
+    return usersFrom;
 });
 
 app.Run();
