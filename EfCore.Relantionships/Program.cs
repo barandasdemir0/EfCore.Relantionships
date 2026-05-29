@@ -48,4 +48,40 @@ app.MapPost("/user-create", (ApplicationDbContext context,UserCreateDto request)
     return Results.Ok(user);
 });
 
+app.MapGet("/userGetAll", (ApplicationDbContext context) =>
+{
+    #region yöntem 1 include
+    //var usersInclude = context.Users.Include(x=>x.UserInformation).ToList();
+    //navigation property verdik ve lazy loading yaptık
+    #endregion
+
+    #region yöntem 2 join
+    //var usersJoin = context.Users.Join
+    //(
+    //    context.UserInformations, //ilişki kurmak istediğin tablo
+    //    user => user!.UserInformation!.Id,//ilişki kullandığım alan
+    //    userInformation => userInformation.Id,
+    //    (user, userInformation) => new
+    //    {
+    //        user,
+    //        userInformation
+    //    }).Select(p => new
+    //    {
+    //        Id = p.user.Id,
+    //        FullName = p.user.FullName,
+    //        IdentityNumber = p.userInformation.IdentityNumber,
+    //        FullAddress  = p.userInformation.FullAddress,
+    //    }).ToList();
+    #endregion
+
+    #region from kullanımı
+
+
+    #endregion
+
+
+    //return usersInclude;
+    //return usersJoin;
+});
+
 app.Run();

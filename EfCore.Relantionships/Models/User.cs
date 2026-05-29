@@ -1,4 +1,6 @@
-﻿namespace EfCore.Relantionships.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace EfCore.Relantionships.Models;
 
 public sealed class User
 {
@@ -10,8 +12,15 @@ public sealed class User
     public string FirstName { get; set; } = default!;
     public string Lastname { get; set; } = default!;
     public string FullName => string.Join(" ", FirstName, Lastname);
-    //public Guid UserInformationId { get; set; } //tablo adı + Id EF bunu otomatik olarak algılar
 
-    //vabigation property üstteki id alttaki kodla bağlı olacak
+    public object Information => new
+    {
+        InfoId = UserInformation?.Id,
+        IdentityNumber = UserInformation?.IdentityNumber,
+        FullAddress = UserInformation?.FullAddress
+    };
+
+    //navigation property  yani bu yazımla beraber userınformatin bilgilerine erişebiliyoruz
+    [JsonIgnore]//Circular reference engellemek
     public UserInformation? UserInformation { get; set; } //--> null gelebilir bu sebeple ? attık
 }
